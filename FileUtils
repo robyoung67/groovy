@@ -1,0 +1,29 @@
+package util.GroovyTools
+
+class FileUtils {
+
+	def saasMsgBdl = new File('C:\\DEV_Zone\\svn\\SaaS\\saas-platform-webapp-rf\\src\\main\\resources\\MessagesBundle.properties')
+	def saasMsgList = []
+	
+	FileUtils(){
+		println 'Constructed'
+	}
+	
+	private void readInMsgBndl(){
+		saasMsgBdl.eachLine  { line ->
+			if(line.indexOf('=')>0 && line.indexOf('#')<0){ 
+				def lineArray = line.split('=')
+				 saasMsgList.add( lineArray[1])	 }
+			}
+	}
+	
+	public void dumpSaasMsgList(){
+		saasMsgList.each{ msg -> println msg }
+	}
+	
+	public static void main(String[] args){
+			def inMsgBnd = new FileUtils()
+			inMsgBnd.readInMsgBndl()
+			inMsgBnd.dumpSaasMsgList()
+	}
+}
