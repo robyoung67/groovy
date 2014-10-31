@@ -2,8 +2,17 @@ package util.GroovyTools
 
 class FileUtils {
 
-	def saasMsgBdl = new File('C:\\DEV_Zone\\svn\\SaaS\\saas-platform-webapp-rf\\src\\main\\resources\\MessagesBundle.properties')
-	def saasMsgList = []
+	def saasMsgBdl = new File('C:\\DATA\\saasMessagesBundle.properties')
+	def saasMsgBdl_es = new File('C:\\DATA\\saasMessagesBundle_es.properties')
+	def msgBdl = new File('C:\\DATA\\MessagesBundle.properties')
+	def msgBdl_es = new File('C:\\DATA\\MessagesBundle_es.properties')
+	def saasMsgMap= [:]
+	def saasMsgMap_es= [:]
+	def MsgMap_es= [:]
+	def needTrans=[:]
+	def MsgMap= [:]
+	def MsgMapOrig= [:]
+	def saasMsgMapOrig= [:]
 	
 	FileUtils(){
 		println 'Constructed'
@@ -12,18 +21,79 @@ class FileUtils {
 	private void readInMsgBndl(){
 		saasMsgBdl.eachLine  { line ->
 			if(line.indexOf('=')>0 && line.indexOf('#')<0){ 
-				def lineArray = line.split('=')
-				 saasMsgList.add( lineArray[1])	 }
+				List lineArray = line.split('=')
+				
+				if(lineArray.size()>1){  
+					saasMsgMap[ lineArray[1].toString().toUpperCase()]= lineArray[0]
+					saasMsgMapOrig[lineArray[0]]= lineArray[1]
+				}
 			}
+		}
+	}
+
+	private void readInMsgBndl_es(){
+		saasMsgBdl_es.eachLine  { line ->
+			if(line.indexOf('=')>0 && line.indexOf('#')<0){
+				List lineArray = line.split('=')
+				
+				if(lineArray.size()>1){
+					saasMsgMap_es[lineArray[0] ]= lineArray[1]
+				}
+			}
+		}
+	}
+
+	private void readMsgBndl_es(){
+		msgBdl_es.eachLine  { line ->
+			if(line.indexOf('=')>0 && line.indexOf('#')<0){
+				List lineArray = line.split('=')
+				
+				if(lineArray.size()>1){
+					MsgMap_es[lineArray[0] ]= lineArray[1]
+				}
+			}
+		}
+	}
+
+	private void readInMsg(){
+		msgBdl.eachLine  { line ->
+			if(line.indexOf('=')>0 && line.indexOf('#')<0){
+				List lineArray = line.split('=')
+				
+				if(lineArray.size()>1){
+					MsgMap[ lineArray[1].toString().toUpperCase()]= lineArray[0]
+					MsgMapOrig[lineArray[0]]= lineArray[1]
+				}
+			}
+		}
 	}
 	
+	public void searchForTextMatch(){
+		saasMsgMap.each{ k, v ->
+			if( MsgMap.containsKey(k)){
+				if(saasMsgMap_es[saasMsgMap[k]]==null){
+					//println "${MsgMap[k]} :: ${saasMsgMap[k]} :: ${saasMsgMapOrig[v]}  :: ${MsgMap_es[MsgMap[k]]} :: ${saasMsgMap_es[saasMsgMap[k]]}"
+					//println "${saasMsgMap[k]} = ${MsgMap_es[MsgMap[k]]} "
+				}
+			}else{
+				needTrans[v]=saasMsgMapOrig[v]
+			}	
+		}
+	}
 	public void dumpSaasMsgList(){
-		saasMsgList.each{ msg -> println msg }
+		needTrans.each{ k, v -> println "${k}=${v}" }
 	}
 	
 	public static void main(String[] args){
-			def inMsgBnd = new FileUtils()
-			inMsgBnd.readInMsgBndl()
-			inMsgBnd.dumpSaasMsgList()
+		def inMsgBnd = new FileUtils()
+		
+		inMsgBnd.readInMsgBndl()
+		inMsgBnd.readInMsg()
+		inMsgBnd.readInMsgBndl_es()
+		inMsgBnd.readMsgBndl_es()
+		inMsgBnd.searchForTextMatch()
+		println '###########################################################################################'
+		println '###########################################################################################'		
+		inMsgBnd.dumpSaasMsgList()
 	}
 }
